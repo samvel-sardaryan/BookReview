@@ -1,0 +1,7 @@
+@BookReview_HostAddress = http://localhost:5104
+
+GET {{BookReview_HostAddress}}/api/book
+Accept: application/json
+
+###
+
