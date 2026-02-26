@@ -1,4 +1,5 @@
-﻿using BookReview.Models;
+﻿using BookReview.Entities;
+using BookReview.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookReview.Data
@@ -14,6 +15,7 @@ namespace BookReview.Data
         public DbSet<Country> Countries { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Reviewer> Reviewers { get; set; }
+        public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<BookCategory>()
