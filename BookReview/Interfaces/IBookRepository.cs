@@ -1,4 +1,5 @@
 ﻿using BookReview.Models;
+
 namespace BookReview.Interfaces
 {
     public interface IBookRepository

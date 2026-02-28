@@ -1,8 +1,6 @@
 ﻿using BookReview.Dto;
 using BookReview.Interfaces;
 using BookReview.Models;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookReview.Controllers

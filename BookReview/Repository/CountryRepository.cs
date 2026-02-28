@@ -1,7 +1,6 @@
 ﻿using BookReview.Data;
 using BookReview.Interfaces;
 using BookReview.Models;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace BookReview.Repository
 {

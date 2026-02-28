@@ -1,7 +1,6 @@
 ﻿using BookReview.Dto;
 using BookReview.Interfaces;
 using BookReview.Models;
-using BookReview.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookReview.Controllers
