@@ -31,6 +31,7 @@ namespace BookReview.Services
             var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
             user.Username = request.Username;
             user.PasswordHash = hashedPassword;
+            user.Role = "User"; // Default role
             context.Users.Add(user);
             await context.SaveChangesAsync();
             return user;
@@ -51,7 +52,7 @@ namespace BookReview.Services
                 issuer: configuration.GetValue<string>("AppSettings:Issuer"),
                 audience: configuration.GetValue<string>("AppSettings:Audience"),
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds);
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }

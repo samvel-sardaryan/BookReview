@@ -44,21 +44,21 @@ namespace BookReview
                 new Book
                 {
                     Title = "The Great Adventure",
-                    ReleaseDate = new DateTime(2020, 5, 10),
+                    ReleaseDate = new DateTimeOffset(2020, 5, 10, 0, 0, 0, TimeSpan.Zero),
                     BookAuthors = new List<BookAuthor>(),
                     BookCategories = new List<BookCategory>()
                 },
                 new Book
                 {
                     Title = "Echoes of the Past",
-                    ReleaseDate = new DateTime(2019, 3, 22),
+                    ReleaseDate = new DateTimeOffset(2019, 3, 22, 0, 0, 0, TimeSpan.Zero),
                     BookAuthors = new List<BookAuthor>(),
                     BookCategories = new List<BookCategory>()
                 },
                 new Book
                 {
                     Title = "Samurai Tales",
-                    ReleaseDate = new DateTime(2021, 11, 5),
+                    ReleaseDate = new DateTimeOffset(2021, 11, 5, 0, 0, 0, TimeSpan.Zero),
                     BookAuthors = new List<BookAuthor>(),
                     BookCategories = new List<BookCategory>()
                 }
@@ -86,7 +86,7 @@ namespace BookReview
                 {
                     Title = "Amazing read!",
                     Text = "Loved the characters and storyline.",
-                    ReviewDate = DateTime.Now.AddDays(-10),
+                    ReviewDate = DateTimeOffset.UtcNow.AddDays(-10),
                     Reviewer = reviewers[0],
                     Book = books[0],
                     Rating = 5
@@ -95,7 +95,7 @@ namespace BookReview
                 {
                     Title = "Informative and engaging",
                     Text = "A great historical journey.",
-                    ReviewDate = DateTime.Now.AddDays(-5),
+                    ReviewDate = DateTimeOffset.UtcNow.AddDays(-5),
                     Reviewer = reviewers[1],
                     Book = books[1],
                     Rating = 4
