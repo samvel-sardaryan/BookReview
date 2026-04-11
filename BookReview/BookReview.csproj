@@ -29,4 +29,11 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="frontend\src\context\" />
+    <Folder Include="frontend\src\hooks\" />
+    <Folder Include="frontend\src\components\" />
+    <Folder Include="frontend\src\pages\" />
+  </ItemGroup>
+
 </Project>
