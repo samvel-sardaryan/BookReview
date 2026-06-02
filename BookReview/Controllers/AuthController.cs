@@ -1,5 +1,4 @@
 ﻿using BookReview.Dto;
-using BookReview.Entities;
 using BookReview.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +10,18 @@ namespace BookReview.Controllers
     public class AuthController(IAuthService authService) : ControllerBase
     {
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(UserDto request)
+        public async Task<ActionResult<UserResponseDto>> Register(UserDto request)
         {
             var user = await authService.RegisterAsync(request);
             if (user == null)
                 return BadRequest("User already exists.");
-            return Ok(user);
+            var response = new UserResponseDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Role = user.Role
+            };
+            return Ok(response);
         }
 
         [HttpPost("login")]
