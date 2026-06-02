@@ -2,11 +2,13 @@
 using BookReview.Interfaces;
 using BookReview.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookReview.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ReviewersController : ControllerBase
     {
         private readonly IReviewerRepository _reviewerRepository;
@@ -16,6 +18,7 @@ namespace BookReview.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewerDto>))]
         public IActionResult GetReviewers()
         {
@@ -31,6 +34,7 @@ namespace BookReview.Controllers
         }
 
         [HttpGet("{reviewerId}")]
+        [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(ReviewerDto))]
         [ProducesResponseType(400)]
         public IActionResult GetReviewer(int reviewerId)
@@ -50,6 +54,7 @@ namespace BookReview.Controllers
         }
 
         [HttpGet("{reviewerId}/reviews")]
+        [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewDto>))]
         [ProducesResponseType(400)]
         public IActionResult GetReviewsByReviewer(int reviewerId)

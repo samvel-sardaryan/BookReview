@@ -2,11 +2,13 @@
 using BookReview.Interfaces;
 using BookReview.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookReview.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryRepository _categoryRepository;
@@ -16,6 +18,7 @@ namespace BookReview.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CategoryDto>))]
         public IActionResult GetCategories()
         {
@@ -30,6 +33,7 @@ namespace BookReview.Controllers
         }
 
         [HttpGet("{categoryId}")]
+        [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(CategoryDto))]
         [ProducesResponseType(400)]
         public IActionResult GetCategory(int categoryId)
@@ -48,6 +52,7 @@ namespace BookReview.Controllers
         }
 
         [HttpGet("{categoryId}/books")]
+        [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(BookDto))]
         [ProducesResponseType(400)]
         public IActionResult GetBooksByCategory(int categoryId)

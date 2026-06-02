@@ -2,11 +2,13 @@
 using BookReview.Interfaces;
 using BookReview.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookReview.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CountriesController : ControllerBase
     {
         private readonly ICountryRepository _countryRepository;
@@ -15,6 +17,7 @@ namespace BookReview.Controllers
             _countryRepository = countryRepository;
         }
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CountryDto>))]
         public IActionResult GetCountries()
         {
@@ -29,6 +32,7 @@ namespace BookReview.Controllers
         }
 
         [HttpGet("{countryId}")]
+        [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(CountryDto))]
         [ProducesResponseType(400)]
         public IActionResult GetCountry(int countryId)
@@ -47,6 +51,7 @@ namespace BookReview.Controllers
         }
 
         [HttpGet("authors/{authorId}")]
+        [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(CountryDto))]
         [ProducesResponseType(400)]
         public IActionResult GetCountryByAuthor(int authorId)
@@ -65,6 +70,7 @@ namespace BookReview.Controllers
         }
 
         [HttpGet("{countryId}/authors")]
+        [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Author>))]
         [ProducesResponseType(400)]
         public IActionResult GetAuthorsFromCountry(int countryId)
