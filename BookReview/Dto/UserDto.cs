@@ -1,8 +1,15 @@
-﻿namespace BookReview.Dto
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BookReview.Dto
 {
     public class UserDto
     {
+        [Required]
+        [StringLength(50, MinimumLength = 3)]
         public string Username { get; set; }
+
+        [Required]
+        [StringLength(100, MinimumLength = 6)]
         public string Password { get; set; }
     }
 }
