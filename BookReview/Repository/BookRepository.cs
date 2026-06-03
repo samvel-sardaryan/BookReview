@@ -22,12 +22,12 @@ namespace BookReview.Repository
             return _context.Books.OrderBy(b => b.Id).ToList();
         }
 
-        public Book GetBook(int id)
+        public Book? GetBook(int id)
         {
             return _context.Books.Where(b => b.Id == id).FirstOrDefault();
         }
 
-        public Book GetBookByTitle(string title)
+        public Book? GetBookByTitle(string title)
         {
             return _context.Books.Where(b => b.Title.Trim().ToUpper() == title.Trim().ToUpper()).FirstOrDefault();
         }

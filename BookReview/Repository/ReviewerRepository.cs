@@ -19,7 +19,7 @@ namespace BookReview.Repository
         {
             return _context.Reviewers.OrderBy(r => r.Id).ToList();
         }
-        public Reviewer GetReviewer(int reviewerId)
+        public Reviewer? GetReviewer(int reviewerId)
         {
             return _context.Reviewers.Where(r => r.Id == reviewerId).FirstOrDefault();
         }

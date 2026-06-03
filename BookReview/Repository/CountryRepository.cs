@@ -15,14 +15,13 @@ namespace BookReview.Repository
         {
             return _context.Countries.OrderBy(c => c.Id).ToList();
         }
-        public Country GetCountry(int countryId)
+        public Country? GetCountry(int countryId)
         {
             return _context.Countries.Where(c => c.Id == countryId).FirstOrDefault();
         }
-        public Country GetCountryByAuthor(int authorId)
+        public Country? GetCountryByAuthor(int authorId)
         {
-            return _context.Authors.Where(a => a.Id == authorId).FirstOrDefault().Country;
-            //return _context.Countries.Where(c => c.Name == author.Country.Name).FirstOrDefault();
+            return _context.Authors.Where(a => a.Id == authorId).FirstOrDefault()?.Country;
         }
         public bool CountryExists(int countryId)
         {

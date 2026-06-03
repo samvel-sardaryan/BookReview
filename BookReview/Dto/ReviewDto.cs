@@ -8,11 +8,11 @@ namespace BookReview.Dto
 
         [Required]
         [StringLength(200)]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [Required]
         [StringLength(2000)]
-        public string Text { get; set; }
+        public string Text { get; set; } = string.Empty;
 
         [Range(1, 5)]
         public int Rating { get; set; }

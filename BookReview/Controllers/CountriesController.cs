@@ -37,9 +37,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetCountry(int countryId)
         {
-            if (!_countryRepository.CountryExists(countryId))
-                return NotFound("Country not found");
             var country = _countryRepository.GetCountry(countryId);
+            if (country == null)
+                return NotFound("Country not found");
             var countryDto = new CountryDto
             {
                 Id = country.Id,
@@ -95,9 +95,9 @@ namespace BookReview.Controllers
         {
             if (updateCountry == null || countryId != updateCountry.Id)
                 return BadRequest("Invalid data");
-            if (!_countryRepository.CountryExists(countryId))
-                return BadRequest("Country not found");
             var countryToUpdate = _countryRepository.GetCountry(countryId);
+            if (countryToUpdate == null)
+                return BadRequest("Country not found");
             countryToUpdate.Name = updateCountry.Name;
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -135,9 +135,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult DeleteCountry(int countryId)
         {
-            if (!_countryRepository.CountryExists(countryId))
-                return BadRequest("Country not found");
             var countryToDelete = _countryRepository.GetCountry(countryId);
+            if (countryToDelete == null)
+                return BadRequest("Country not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (!_countryRepository.DeleteCountry(countryToDelete))

@@ -16,7 +16,7 @@ namespace BookReview.Repository
         {
             return _context.Reviews.Include(r => r.Book).Include(a => a.Reviewer).OrderBy(r => r.Id).ToList();
         }
-        public Review GetReview(int reviewId)
+        public Review? GetReview(int reviewId)
         {
             return _context.Reviews.Include(r => r.Book).Include(r => r.Reviewer).Where(r => r.Id == reviewId).FirstOrDefault();
         }

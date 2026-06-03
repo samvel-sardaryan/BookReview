@@ -8,13 +8,13 @@ namespace BookReview.Dto
 
         [Required]
         [StringLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [StringLength(1000)]
-        public string Bio { get; set; }
+        public string Bio { get; set; } = string.Empty;
 
         [Required]
         [StringLength(100)]
-        public string CountryName { get; set; }
+        public string CountryName { get; set; } = string.Empty;
     }
 }

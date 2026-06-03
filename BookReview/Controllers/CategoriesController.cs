@@ -38,9 +38,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetCategory(int categoryId)
         {
-            if (!_categoryRepository.CategoryExists(categoryId))
-                return NotFound("Category not found");
             var category = _categoryRepository.GetCategory(categoryId);
+            if (category == null)
+                return NotFound("Category not found");
             var categoryDto = new CategoryDto
             {
                 Id = category.Id,
@@ -77,9 +77,9 @@ namespace BookReview.Controllers
         {
             if (updateCategory == null || categoryId != updateCategory.Id)
                 return BadRequest("Invalid data");
-            if (!_categoryRepository.CategoryExists(categoryId))
-                return BadRequest("Category not found");
             var categoryToUpdate = _categoryRepository.GetCategory(categoryId);
+            if (categoryToUpdate == null)
+                return BadRequest("Category not found");
             categoryToUpdate.Name = updateCategory.Name;
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -117,9 +117,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult DeleteCategory(int categoryId)
         {
-            if (!_categoryRepository.CategoryExists(categoryId))
-                return BadRequest("Category not found");
             var categoryToDelete = _categoryRepository.GetCategory(categoryId);
+            if (categoryToDelete == null)
+                return BadRequest("Category not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (!_categoryRepository.DeleteCategory(categoryToDelete))

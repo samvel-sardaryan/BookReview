@@ -42,9 +42,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetReview(int reviewId)
         {
-            if (!_reviewRepository.ReviewExists(reviewId))
-                return NotFound("Review not found");
             var review = _reviewRepository.GetReview(reviewId);
+            if (review == null)
+                return NotFound("Review not found");
             var reviewDto = new ReviewDto
             {
                 Id = review.Id,
@@ -88,9 +88,9 @@ namespace BookReview.Controllers
         {
             if (updateReview == null || reviewId != updateReview.Id)
                 return BadRequest("Invalid data");
-            if (!_reviewRepository.ReviewExists(reviewId))
-                return BadRequest("Review not found");
             var reviewToUpdate = _reviewRepository.GetReview(reviewId);
+            if (reviewToUpdate == null)
+                return BadRequest("Review not found");
             reviewToUpdate.Title = updateReview.Title;
             reviewToUpdate.Text = updateReview.Text;
             reviewToUpdate.Rating = updateReview.Rating;
@@ -136,9 +136,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult DeleteReview(int reviewId)
         {
-            if (!_reviewRepository.ReviewExists(reviewId))
-                return BadRequest("Review not found");
             var reviewToDelete = _reviewRepository.GetReview(reviewId);
+            if (reviewToDelete == null)
+                return BadRequest("Review not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (!_reviewRepository.DeleteReview(reviewToDelete))

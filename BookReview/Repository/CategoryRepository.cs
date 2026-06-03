@@ -26,7 +26,7 @@ namespace BookReview.Repository
             return _context.Categories.OrderBy(c => c.Id).ToList();
         }
 
-        public Category GetCategory(int categoryId)
+        public Category? GetCategory(int categoryId)
         {
             return _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault();
         }

@@ -5,7 +5,7 @@ namespace BookReview.Interfaces
     public interface IReviewRepository
     {
         ICollection<Review> GetReviews();
-        Review GetReview(int reviewId);
+        Review? GetReview(int reviewId);
         ICollection<Review> GetReviewsOfBook(int bookId);
         bool ReviewExists(int reviewId);
         bool UpdateReview(Review review);

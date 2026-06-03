@@ -40,9 +40,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetAuthor(int authorId)
         {
-            if (!_authorRepository.AuthorExists(authorId))
-                return NotFound("Author not found");
             var author = _authorRepository.GetAuthorById(authorId);
+            if (author == null)
+                return NotFound("Author not found");
             var authorDto = new AuthorDto
             {
                 Id = author.Id,
@@ -101,9 +101,9 @@ namespace BookReview.Controllers
         {
             if (updateAuthor == null || authorId != updateAuthor.Id)
                 return BadRequest("Invalid data");
-            if (!_authorRepository.AuthorExists(authorId))
-                return BadRequest("Author not found");
             var authorToUpdate = _authorRepository.GetAuthorById(authorId);
+            if (authorToUpdate == null)
+                return BadRequest("Author not found");
             authorToUpdate.Name = updateAuthor.Name;
             authorToUpdate.Bio = updateAuthor.Bio;
             authorToUpdate.Country.Name = updateAuthor.CountryName;
@@ -148,9 +148,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult DeleteAuthor(int authorId)
         {
-            if (!_authorRepository.AuthorExists(authorId))
-                return BadRequest("Author not found");
             var authorToDelete = _authorRepository.GetAuthorById(authorId);
+            if (authorToDelete == null)
+                return BadRequest("Author not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (!_authorRepository.DeleteAuthor(authorToDelete))

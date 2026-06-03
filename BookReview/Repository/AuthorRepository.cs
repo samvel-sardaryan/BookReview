@@ -23,7 +23,7 @@ namespace BookReview.Repository
             return _context.Authors.Include(a => a.Country).OrderBy(a => a.Id).ToList();
         }
 
-        public Author GetAuthorById(int authorId)
+        public Author? GetAuthorById(int authorId)
         {
             return _context.Authors.Include(a => a.Country).Where(a => a.Id == authorId).FirstOrDefault();
         }

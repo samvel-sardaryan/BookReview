@@ -39,9 +39,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetBook(int bookId)
         {
-            if (!_bookRepository.BookExists(bookId))
-                return NotFound("Book not found");
             var book = _bookRepository.GetBook(bookId);
+            if (book == null)
+                return NotFound("Book not found");
             var bookDto = new BookDto
             {
                 Id = book.Id,
@@ -74,9 +74,9 @@ namespace BookReview.Controllers
         {
             if (updateBook == null || bookId != updateBook.Id)
                 return BadRequest("Invalid data");
-            if (!_bookRepository.BookExists(bookId))
-                return BadRequest("Book not found");
             var bookToUpdate = _bookRepository.GetBook(bookId);
+            if (bookToUpdate == null)
+                return BadRequest("Book not found");
             bookToUpdate.Title = updateBook.Title;
             bookToUpdate.ReleaseDate = updateBook.ReleaseDate;
             if (!ModelState.IsValid)
@@ -116,9 +116,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult DeleteBook(int bookId)
         {
-            if (!_bookRepository.BookExists(bookId))
-                return BadRequest("Book not found");
             var bookToDelete = _bookRepository.GetBook(bookId);
+            if (bookToDelete == null)
+                return BadRequest("Book not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (!_bookRepository.DeleteBook(bookToDelete))

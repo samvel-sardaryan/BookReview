@@ -39,9 +39,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetReviewer(int reviewerId)
         {
-            if (!_reviewerRepository.ReviewerExists(reviewerId))
-                return NotFound("Reviewer not found");
             var reviewer = _reviewerRepository.GetReviewer(reviewerId);
+            if (reviewer == null)
+                return NotFound("Reviewer not found");
             var reviewerDto = new ReviewerDto
             {
                 Id = reviewer.Id,
@@ -80,9 +80,9 @@ namespace BookReview.Controllers
         {
             if (updateReviewer == null || reviewerId != updateReviewer.Id)
                 return BadRequest("Invalid data");
-            if (!_reviewerRepository.ReviewerExists(reviewerId))
-                return BadRequest("Reviewer not found");
             var reviewerToUpdate = _reviewerRepository.GetReviewer(reviewerId);
+            if (reviewerToUpdate == null)
+                return BadRequest("Reviewer not found");
             reviewerToUpdate.FirstName = updateReviewer.FirstName;
             reviewerToUpdate.LastName = updateReviewer.LastName;
             if (!ModelState.IsValid)
@@ -122,9 +122,9 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult DeleteReviewer(int reviewerId)
         {
-            if (!_reviewerRepository.ReviewerExists(reviewerId))
-                return BadRequest("Reviewer not found");
             var reviewerToDelete = _reviewerRepository.GetReviewer(reviewerId);
+            if (reviewerToDelete == null)
+                return BadRequest("Reviewer not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (!_reviewerRepository.DeleteReviewer(reviewerToDelete))

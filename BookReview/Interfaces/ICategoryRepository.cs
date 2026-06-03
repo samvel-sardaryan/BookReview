@@ -5,7 +5,7 @@ namespace BookReview.Interfaces
     public interface ICategoryRepository
     {
         ICollection<Category> GetCategories();
-        Category GetCategory(int categoryId);
+        Category? GetCategory(int categoryId);
         ICollection<Book> GetBooksByCategory(int categoryId);
         bool CategoryExists(int categoryId);
         bool UpdateCategory(Category category);
