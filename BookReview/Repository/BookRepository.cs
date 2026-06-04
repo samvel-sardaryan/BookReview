@@ -27,11 +27,6 @@ namespace BookReview.Repository
             return _context.Books.Where(b => b.Id == id).FirstOrDefault();
         }
 
-        public Book? GetBookByTitle(string title)
-        {
-            return _context.Books.Where(b => b.Title.Trim().ToUpper() == title.Trim().ToUpper()).FirstOrDefault();
-        }
-
         public decimal GetBookRating(int bookId)
         {
             var reviews = _context.Reviews.Where(r => r.Book.Id == bookId);

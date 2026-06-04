@@ -6,7 +6,6 @@ namespace BookReview.Interfaces
     {
         ICollection<Book> GetAllBooks();
         Book? GetBook(int id);
-        Book? GetBookByTitle(string title);
         decimal GetBookRating(int bookId);
         bool BookExists(int id);
         bool UpdateBook(Book book);

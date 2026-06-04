@@ -26,11 +26,6 @@ namespace BookReview.Repository
             return _context.Reviews.Include(r => r.Book).Include(r => r.Reviewer).Where(r => r.Book.Id == bookId).ToList();
         }
 
-        public bool ReviewExists(int reviewId)
-        {
-            return _context.Reviews.Any(r => r.Id == reviewId);
-        }
-
         public bool UpdateReview(Review review)
         {
             var book = _context.Books.FirstOrDefault(b => b.Id == review.Book.Id);
