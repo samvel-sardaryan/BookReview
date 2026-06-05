@@ -1,6 +1,7 @@
 ﻿using BookReview.Data;
 using BookReview.Interfaces;
 using BookReview.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookReview.Repository
 {
@@ -21,7 +22,7 @@ namespace BookReview.Repository
         }
         public Country? GetCountryByAuthor(int authorId)
         {
-            return _context.Authors.Where(a => a.Id == authorId).FirstOrDefault()?.Country;
+            return _context.Authors.Include(a => a.Country).Where(a => a.Id == authorId).FirstOrDefault()?.Country;
         }
         public bool CountryExists(int countryId)
         {

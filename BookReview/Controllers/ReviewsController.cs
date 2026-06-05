@@ -12,9 +12,11 @@ namespace BookReview.Controllers
     public class ReviewsController : ControllerBase
     {
         private readonly IReviewRepository _reviewRepository;
-        public ReviewsController(IReviewRepository reviewRepository)
+        private readonly IBookRepository _bookRepository;
+        public ReviewsController(IReviewRepository reviewRepository, IBookRepository bookRepository)
         {
             _reviewRepository = reviewRepository;
+            _bookRepository = bookRepository;
         }
 
         [HttpGet]
@@ -65,6 +67,8 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetReviewsOfBook(int bookId)
         {
+            if (!_bookRepository.BookExists(bookId))
+                return NotFound("Book not found");
             var reviews = _reviewRepository.GetReviewsOfBook(bookId).Select(r => new ReviewDto
             {
                 Id = r.Id,
@@ -74,8 +78,6 @@ namespace BookReview.Controllers
                 BookId = r.Book.Id,
                 ReviewerId = r.Reviewer.Id
             });
-            if (reviews == null)
-                return NotFound("No reviews found for the given book");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             return Ok(reviews);
@@ -98,7 +100,8 @@ namespace BookReview.Controllers
             reviewToUpdate.Reviewer = new Reviewer { Id = updateReview.ReviewerId };
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            _reviewRepository.UpdateReview(reviewToUpdate);
+            if (!_reviewRepository.UpdateReview(reviewToUpdate))
+                return BadRequest("Book or reviewer not found");
             return NoContent();
         }
 
@@ -109,12 +112,6 @@ namespace BookReview.Controllers
         {
             if (newReview == null)
                 return BadRequest("Invalid data");
-            var existingReview = _reviewRepository.GetReviews().FirstOrDefault(c => c.Title.Trim().ToUpper() == newReview.Title.Trim().ToUpper());
-            if (existingReview != null)
-            {
-                ModelState.AddModelError("", "Review already exists");
-                return StatusCode(422, ModelState);
-            }
             var reviewToCreate = new Review
             {
                 Title = newReview.Title,

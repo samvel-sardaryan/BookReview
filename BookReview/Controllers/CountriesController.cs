@@ -101,7 +101,11 @@ namespace BookReview.Controllers
             countryToUpdate.Name = updateCountry.Name;
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            _countryRepository.UpdateCountry(countryToUpdate);
+            if (!_countryRepository.UpdateCountry(countryToUpdate))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
             return NoContent();
         }
 

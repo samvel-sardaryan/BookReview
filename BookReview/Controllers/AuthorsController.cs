@@ -12,9 +12,11 @@ namespace BookReview.Controllers
     public class AuthorsController : ControllerBase
     {
         private readonly IAuthorRepository _authorRepository;
-        public AuthorsController(IAuthorRepository authorRepository)
+        private readonly IBookRepository _bookRepository;
+        public AuthorsController(IAuthorRepository authorRepository, IBookRepository bookRepository)
         {
             _authorRepository = authorRepository;
+            _bookRepository = bookRepository;
         }
 
         [HttpGet]
@@ -61,6 +63,8 @@ namespace BookReview.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetAuthorsOfBook(int bookId)
         {
+            if (!_bookRepository.BookExists(bookId))
+                return NotFound("Book not found");
             var authors = _authorRepository.GetAuthorsOfBook(bookId).Select(a => new AuthorDto
             {
                 Id = a.Id,
@@ -68,8 +72,6 @@ namespace BookReview.Controllers
                 Bio = a.Bio,
                 CountryName = a.Country.Name
             });
-            if (authors == null)
-                return NotFound("Book not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             return Ok(authors);
@@ -106,10 +108,11 @@ namespace BookReview.Controllers
                 return BadRequest("Author not found");
             authorToUpdate.Name = updateAuthor.Name;
             authorToUpdate.Bio = updateAuthor.Bio;
-            authorToUpdate.Country.Name = updateAuthor.CountryName;
+            authorToUpdate.Country = new Country { Name = updateAuthor.CountryName };
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            _authorRepository.UpdateAuthor(authorToUpdate);
+            if (!_authorRepository.UpdateAuthor(authorToUpdate))
+                return BadRequest("Country not found");
             return NoContent();
         }
 

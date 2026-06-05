@@ -87,7 +87,11 @@ namespace BookReview.Controllers
             reviewerToUpdate.LastName = updateReviewer.LastName;
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            _reviewerRepository.UpdateReviewer(reviewerToUpdate);
+            if (!_reviewerRepository.UpdateReviewer(reviewerToUpdate))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
             return NoContent();
         }
 

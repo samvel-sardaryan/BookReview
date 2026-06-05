@@ -81,7 +81,11 @@ namespace BookReview.Controllers
             bookToUpdate.ReleaseDate = updateBook.ReleaseDate;
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            _bookRepository.UpdateBook(bookToUpdate);
+            if (!_bookRepository.UpdateBook(bookToUpdate))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
             return NoContent();
         }
 
