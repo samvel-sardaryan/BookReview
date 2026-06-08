@@ -1,4 +1,4 @@
-﻿using BookReview.Dto;
+using BookReview.Dto;
 using BookReview.Interfaces;
 using BookReview.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -22,9 +22,9 @@ namespace BookReview.Controllers
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewDto>))]
-        public IActionResult GetReviews()
+        public async Task<IActionResult> GetReviews()
         {
-            var reviews = _reviewRepository.GetReviews().Select(r => new ReviewDto
+            var reviews = (await _reviewRepository.GetReviewsAsync()).Select(r => new ReviewDto
             {
                 Id = r.Id,
                 Title = r.Title,
@@ -42,9 +42,9 @@ namespace BookReview.Controllers
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(ReviewDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetReview(int reviewId)
+        public async Task<IActionResult> GetReview(int reviewId)
         {
-            var review = _reviewRepository.GetReview(reviewId);
+            var review = await _reviewRepository.GetReviewAsync(reviewId);
             if (review == null)
                 return NotFound("Review not found");
             var reviewDto = new ReviewDto
@@ -65,11 +65,11 @@ namespace BookReview.Controllers
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewDto>))]
         [ProducesResponseType(400)]
-        public IActionResult GetReviewsOfBook(int bookId)
+        public async Task<IActionResult> GetReviewsOfBook(int bookId)
         {
-            if (!_bookRepository.BookExists(bookId))
+            if (!await _bookRepository.BookExistsAsync(bookId))
                 return NotFound("Book not found");
-            var reviews = _reviewRepository.GetReviewsOfBook(bookId).Select(r => new ReviewDto
+            var reviews = (await _reviewRepository.GetReviewsOfBookAsync(bookId)).Select(r => new ReviewDto
             {
                 Id = r.Id,
                 Title = r.Title,
@@ -86,11 +86,11 @@ namespace BookReview.Controllers
         [HttpPut("{reviewId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult UpdateReview(int reviewId, [FromBody] ReviewDto updateReview)
+        public async Task<IActionResult> UpdateReview(int reviewId, [FromBody] ReviewDto updateReview)
         {
             if (updateReview == null || reviewId != updateReview.Id)
                 return BadRequest("Invalid data");
-            var reviewToUpdate = _reviewRepository.GetReview(reviewId);
+            var reviewToUpdate = await _reviewRepository.GetReviewAsync(reviewId);
             if (reviewToUpdate == null)
                 return BadRequest("Review not found");
             reviewToUpdate.Title = updateReview.Title;
@@ -100,7 +100,7 @@ namespace BookReview.Controllers
             reviewToUpdate.Reviewer = new Reviewer { Id = updateReview.ReviewerId };
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            if (!_reviewRepository.UpdateReview(reviewToUpdate))
+            if (!await _reviewRepository.UpdateReviewAsync(reviewToUpdate))
                 return BadRequest("Book or reviewer not found");
             return NoContent();
         }
@@ -108,7 +108,7 @@ namespace BookReview.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateReview([FromBody] ReviewDto newReview)
+        public async Task<IActionResult> CreateReview([FromBody] ReviewDto newReview)
         {
             if (newReview == null)
                 return BadRequest("Invalid data");
@@ -120,7 +120,7 @@ namespace BookReview.Controllers
                 Book = new Book { Id = newReview.BookId },
                 Reviewer = new Reviewer { Id = newReview.ReviewerId }
             };
-            if (!_reviewRepository.CreateReview(reviewToCreate))
+            if (!await _reviewRepository.CreateReviewAsync(reviewToCreate))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
@@ -131,14 +131,14 @@ namespace BookReview.Controllers
         [HttpDelete("{reviewId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult DeleteReview(int reviewId)
+        public async Task<IActionResult> DeleteReview(int reviewId)
         {
-            var reviewToDelete = _reviewRepository.GetReview(reviewId);
+            var reviewToDelete = await _reviewRepository.GetReviewAsync(reviewId);
             if (reviewToDelete == null)
                 return BadRequest("Review not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            if (!_reviewRepository.DeleteReview(reviewToDelete))
+            if (!await _reviewRepository.DeleteReviewAsync(reviewToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);

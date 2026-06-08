@@ -1,6 +1,7 @@
-﻿using BookReview.Data;
+using BookReview.Data;
 using BookReview.Interfaces;
 using BookReview.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookReview.Repository
 {
@@ -12,51 +13,52 @@ namespace BookReview.Repository
             _context = context;
         }
 
-        public bool BookExists(int id)
+        public async Task<bool> BookExistsAsync(int id)
         {
-            return _context.Books.Any(b => b.Id == id);
+            return await _context.Books.AnyAsync(b => b.Id == id);
         }
 
-        public ICollection<Book> GetAllBooks()
+        public async Task<ICollection<Book>> GetAllBooksAsync()
         {
-            return _context.Books.OrderBy(b => b.Id).ToList();
+            return await _context.Books.OrderBy(b => b.Id).ToListAsync();
         }
 
-        public Book? GetBook(int id)
+        public async Task<Book?> GetBookAsync(int id)
         {
-            return _context.Books.Where(b => b.Id == id).FirstOrDefault();
+            return await _context.Books.Where(b => b.Id == id).FirstOrDefaultAsync();
         }
 
-        public decimal GetBookRating(int bookId)
+        public async Task<decimal> GetBookRatingAsync(int bookId)
         {
             var reviews = _context.Reviews.Where(r => r.Book.Id == bookId);
-            if (reviews.Count() == 0)
+            if (await reviews.CountAsync() == 0)
                 return 0;
-            return (decimal)reviews.Average(r => r.Rating);
+            var average = await reviews.AverageAsync(r => r.Rating);
+            return (decimal)average;
         }
 
-        public bool UpdateBook(Book book)
+        public async Task<bool> UpdateBookAsync(Book book)
         {
             _context.Books.Update(book);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool CreateBook(Book book)
+        public async Task<bool> CreateBookAsync(Book book)
         {
             _context.Books.Add(book);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool DeleteBook(Book book)
+        public async Task<bool> DeleteBookAsync(Book book)
         {
             _context.Books.Remove(book);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            var saved = _context.SaveChanges();
-            return saved > 0 ? true : false;
+            var saved = await _context.SaveChangesAsync();
+            return saved > 0;
         }
     }
 }

@@ -1,17 +1,17 @@
-﻿using BookReview.Models;
+using BookReview.Models;
 
 namespace BookReview.Interfaces
 {
     public interface IAuthorRepository
     {
-        ICollection<Author> GetAllAuthors();
-        Author? GetAuthorById(int authorId);
-        ICollection<Author> GetAuthorsOfBook(int bookId);
-        ICollection<Book> GetBooksByAuthor(int authorId);
-        bool AuthorExists(int authorId);
-        bool UpdateAuthor(Author author);
-        bool CreateAuthor(Author author);
-        bool DeleteAuthor(Author author);
-        bool Save();
+        Task<ICollection<Author>> GetAllAuthorsAsync();
+        Task<Author?> GetAuthorByIdAsync(int authorId);
+        Task<ICollection<Author>> GetAuthorsOfBookAsync(int bookId);
+        Task<ICollection<Book>> GetBooksByAuthorAsync(int authorId);
+        Task<bool> AuthorExistsAsync(int authorId);
+        Task<bool> UpdateAuthorAsync(Author author);
+        Task<bool> CreateAuthorAsync(Author author);
+        Task<bool> DeleteAuthorAsync(Author author);
+        Task<bool> SaveAsync();
     }
 }

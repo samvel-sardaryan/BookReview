@@ -1,4 +1,4 @@
-﻿using BookReview.Dto;
+using BookReview.Dto;
 using BookReview.Interfaces;
 using BookReview.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +20,9 @@ namespace BookReview.Controllers
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CategoryDto>))]
-        public IActionResult GetCategories()
+        public async Task<IActionResult> GetCategories()
         {
-            var categories = _categoryRepository.GetCategories().Select(c => new CategoryDto
+            var categories = (await _categoryRepository.GetCategoriesAsync()).Select(c => new CategoryDto
             {
                 Id = c.Id,
                 Name = c.Name
@@ -36,9 +36,9 @@ namespace BookReview.Controllers
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(CategoryDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetCategory(int categoryId)
+        public async Task<IActionResult> GetCategory(int categoryId)
         {
-            var category = _categoryRepository.GetCategory(categoryId);
+            var category = await _categoryRepository.GetCategoryAsync(categoryId);
             if (category == null)
                 return NotFound("Category not found");
             var categoryDto = new CategoryDto
@@ -55,11 +55,11 @@ namespace BookReview.Controllers
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(BookDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetBooksByCategory(int categoryId)
+        public async Task<IActionResult> GetBooksByCategory(int categoryId)
         {
-            if (!_categoryRepository.CategoryExists(categoryId))
+            if (!await _categoryRepository.CategoryExistsAsync(categoryId))
                 return NotFound("Category not found");
-            var books = _categoryRepository.GetBooksByCategory(categoryId).Select(b => new BookDto
+            var books = (await _categoryRepository.GetBooksByCategoryAsync(categoryId)).Select(b => new BookDto
             {
                 Id = b.Id,
                 Title = b.Title,
@@ -73,17 +73,17 @@ namespace BookReview.Controllers
         [HttpPut("{categoryId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult UpdateCategory(int categoryId, [FromBody] CategoryDto updateCategory)
+        public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] CategoryDto updateCategory)
         {
             if (updateCategory == null || categoryId != updateCategory.Id)
                 return BadRequest("Invalid data");
-            var categoryToUpdate = _categoryRepository.GetCategory(categoryId);
+            var categoryToUpdate = await _categoryRepository.GetCategoryAsync(categoryId);
             if (categoryToUpdate == null)
                 return BadRequest("Category not found");
             categoryToUpdate.Name = updateCategory.Name;
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            if (!_categoryRepository.UpdateCategory(categoryToUpdate))
+            if (!await _categoryRepository.UpdateCategoryAsync(categoryToUpdate))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
@@ -94,11 +94,11 @@ namespace BookReview.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateCategory([FromBody] CategoryDto newCategory)
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryDto newCategory)
         {
             if (newCategory == null)
                 return BadRequest("Invalid data");
-            var existingCategory = _categoryRepository.GetCategories().FirstOrDefault(c => c.Name.Trim().ToUpper() == newCategory.Name.Trim().ToUpper());
+            var existingCategory = (await _categoryRepository.GetCategoriesAsync()).FirstOrDefault(c => c.Name.Trim().ToUpper() == newCategory.Name.Trim().ToUpper());
             if (existingCategory != null)
             {
                 ModelState.AddModelError("", "Category already exists");
@@ -108,7 +108,7 @@ namespace BookReview.Controllers
             {
                 Name = newCategory.Name,
             };
-            if (!_categoryRepository.CreateCategory(categoryToCreate))
+            if (!await _categoryRepository.CreateCategoryAsync(categoryToCreate))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
@@ -119,14 +119,14 @@ namespace BookReview.Controllers
         [HttpDelete("{categoryId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult DeleteCategory(int categoryId)
+        public async Task<IActionResult> DeleteCategory(int categoryId)
         {
-            var categoryToDelete = _categoryRepository.GetCategory(categoryId);
+            var categoryToDelete = await _categoryRepository.GetCategoryAsync(categoryId);
             if (categoryToDelete == null)
                 return BadRequest("Category not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            if (!_categoryRepository.DeleteCategory(categoryToDelete))
+            if (!await _categoryRepository.DeleteCategoryAsync(categoryToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);

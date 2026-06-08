@@ -1,4 +1,4 @@
-﻿using BookReview.Dto;
+using BookReview.Dto;
 using BookReview.Interfaces;
 using BookReview.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -19,9 +19,9 @@ namespace BookReview.Controllers
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CountryDto>))]
-        public IActionResult GetCountries()
+        public async Task<IActionResult> GetCountries()
         {
-            var countries = _countryRepository.GetCountries().Select(c => new CountryDto
+            var countries = (await _countryRepository.GetCountriesAsync()).Select(c => new CountryDto
             {
                 Id = c.Id,
                 Name = c.Name
@@ -35,9 +35,9 @@ namespace BookReview.Controllers
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(CountryDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetCountry(int countryId)
+        public async Task<IActionResult> GetCountry(int countryId)
         {
-            var country = _countryRepository.GetCountry(countryId);
+            var country = await _countryRepository.GetCountryAsync(countryId);
             if (country == null)
                 return NotFound("Country not found");
             var countryDto = new CountryDto
@@ -54,9 +54,9 @@ namespace BookReview.Controllers
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(CountryDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetCountryByAuthor(int authorId)
+        public async Task<IActionResult> GetCountryByAuthor(int authorId)
         {
-            var country = _countryRepository.GetCountryByAuthor(authorId);
+            var country = await _countryRepository.GetCountryByAuthorAsync(authorId);
             if (country == null)
                 return NotFound("Country not found for the given author");
             var countryDto = new CountryDto
@@ -73,11 +73,11 @@ namespace BookReview.Controllers
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Author>))]
         [ProducesResponseType(400)]
-        public IActionResult GetAuthorsFromCountry(int countryId)
+        public async Task<IActionResult> GetAuthorsFromCountry(int countryId)
         {
-            if (!_countryRepository.CountryExists(countryId))
+            if (!await _countryRepository.CountryExistsAsync(countryId))
                 return NotFound("Country not found");
-            var authors = _countryRepository.GetAuthorsFromCountry(countryId).Select(a => new AuthorDto
+            var authors = (await _countryRepository.GetAuthorsFromCountryAsync(countryId)).Select(a => new AuthorDto
             {
                 Id = a.Id,
                 Name = a.Name,
@@ -91,17 +91,17 @@ namespace BookReview.Controllers
         [HttpPut("{countryId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult UpdateCountry(int countryId, [FromBody] CountryDto updateCountry)
+        public async Task<IActionResult> UpdateCountry(int countryId, [FromBody] CountryDto updateCountry)
         {
             if (updateCountry == null || countryId != updateCountry.Id)
                 return BadRequest("Invalid data");
-            var countryToUpdate = _countryRepository.GetCountry(countryId);
+            var countryToUpdate = await _countryRepository.GetCountryAsync(countryId);
             if (countryToUpdate == null)
                 return BadRequest("Country not found");
             countryToUpdate.Name = updateCountry.Name;
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            if (!_countryRepository.UpdateCountry(countryToUpdate))
+            if (!await _countryRepository.UpdateCountryAsync(countryToUpdate))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
@@ -112,11 +112,11 @@ namespace BookReview.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateCountry([FromBody] CountryDto newCountry)
+        public async Task<IActionResult> CreateCountry([FromBody] CountryDto newCountry)
         {
             if (newCountry == null)
                 return BadRequest("Invalid data");
-            var existingCountry = _countryRepository.GetCountries().FirstOrDefault(c => c.Name.Trim().ToUpper() == newCountry.Name.Trim().ToUpper());
+            var existingCountry = (await _countryRepository.GetCountriesAsync()).FirstOrDefault(c => c.Name.Trim().ToUpper() == newCountry.Name.Trim().ToUpper());
             if (existingCountry != null)
             {
                 ModelState.AddModelError("", "Country already exists");
@@ -126,7 +126,7 @@ namespace BookReview.Controllers
             {
                 Name = newCountry.Name,
             };
-            if (!_countryRepository.CreateCountry(countryToCreate))
+            if (!await _countryRepository.CreateCountryAsync(countryToCreate))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
@@ -137,14 +137,14 @@ namespace BookReview.Controllers
         [HttpDelete("{countryId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult DeleteCountry(int countryId)
+        public async Task<IActionResult> DeleteCountry(int countryId)
         {
-            var countryToDelete = _countryRepository.GetCountry(countryId);
+            var countryToDelete = await _countryRepository.GetCountryAsync(countryId);
             if (countryToDelete == null)
                 return BadRequest("Country not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            if (!_countryRepository.DeleteCountry(countryToDelete))
+            if (!await _countryRepository.DeleteCountryAsync(countryToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);

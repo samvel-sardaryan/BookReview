@@ -1,16 +1,16 @@
-﻿using BookReview.Models;
+using BookReview.Models;
 
 namespace BookReview.Interfaces
 {
     public interface IBookRepository
     {
-        ICollection<Book> GetAllBooks();
-        Book? GetBook(int id);
-        decimal GetBookRating(int bookId);
-        bool BookExists(int id);
-        bool UpdateBook(Book book);
-        bool CreateBook(Book book);
-        bool DeleteBook(Book book);
-        bool Save();
+        Task<ICollection<Book>> GetAllBooksAsync();
+        Task<Book?> GetBookAsync(int id);
+        Task<decimal> GetBookRatingAsync(int bookId);
+        Task<bool> BookExistsAsync(int id);
+        Task<bool> UpdateBookAsync(Book book);
+        Task<bool> CreateBookAsync(Book book);
+        Task<bool> DeleteBookAsync(Book book);
+        Task<bool> SaveAsync();
     }
 }

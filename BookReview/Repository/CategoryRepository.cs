@@ -1,6 +1,7 @@
-﻿using BookReview.Data;
+using BookReview.Data;
 using BookReview.Interfaces;
 using BookReview.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookReview.Repository
 {
@@ -11,48 +12,48 @@ namespace BookReview.Repository
         {
             _context = context;
         }
-        public bool CategoryExists(int categoryId)
+        public async Task<bool> CategoryExistsAsync(int categoryId)
         {
-            return _context.Categories.Any(c => c.Id == categoryId);
+            return await _context.Categories.AnyAsync(c => c.Id == categoryId);
         }
 
-        public ICollection<Book> GetBooksByCategory(int categoryId)
+        public async Task<ICollection<Book>> GetBooksByCategoryAsync(int categoryId)
         {
-            return _context.BookCategories.Where(bc =>  bc.CategoryId == categoryId).Select(bc => bc.Book).ToList();
+            return await _context.BookCategories.Where(bc =>  bc.CategoryId == categoryId).Select(bc => bc.Book).ToListAsync();
         }
 
-        public ICollection<Category> GetCategories()
+        public async Task<ICollection<Category>> GetCategoriesAsync()
         {
-            return _context.Categories.OrderBy(c => c.Id).ToList();
+            return await _context.Categories.OrderBy(c => c.Id).ToListAsync();
         }
 
-        public Category? GetCategory(int categoryId)
+        public async Task<Category?> GetCategoryAsync(int categoryId)
         {
-            return _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault();
+            return await _context.Categories.Where(c => c.Id == categoryId).FirstOrDefaultAsync();
         }
 
-        public bool UpdateCategory(Category category)
+        public async Task<bool> UpdateCategoryAsync(Category category)
         {
             _context.Categories.Update(category);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool CreateCategory(Category category)
+        public async Task<bool> CreateCategoryAsync(Category category)
         {
             _context.Categories.Add(category);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool DeleteCategory(Category category)
+        public async Task<bool> DeleteCategoryAsync(Category category)
         {
             _context.Categories.Remove(category);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            var saved = _context.SaveChanges();
-            return saved > 0 ? true : false;
+            var saved = await _context.SaveChangesAsync();
+            return saved > 0;
         }
     }
 }

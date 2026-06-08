@@ -1,4 +1,4 @@
-﻿using BookReview.Data;
+using BookReview.Data;
 using BookReview.Interfaces;
 using BookReview.Models;
 using Microsoft.EntityFrameworkCore;
@@ -12,54 +12,54 @@ namespace BookReview.Repository
         {
             _context = context;
         }
-        public ICollection<Review> GetReviews()
+        public async Task<ICollection<Review>> GetReviewsAsync()
         {
-            return _context.Reviews.Include(r => r.Book).Include(a => a.Reviewer).OrderBy(r => r.Id).ToList();
+            return await _context.Reviews.Include(r => r.Book).Include(a => a.Reviewer).OrderBy(r => r.Id).ToListAsync();
         }
-        public Review? GetReview(int reviewId)
+        public async Task<Review?> GetReviewAsync(int reviewId)
         {
-            return _context.Reviews.Include(r => r.Book).Include(r => r.Reviewer).Where(r => r.Id == reviewId).FirstOrDefault();
-        }
-
-        public ICollection<Review> GetReviewsOfBook(int bookId)
-        {
-            return _context.Reviews.Include(r => r.Book).Include(r => r.Reviewer).Where(r => r.Book.Id == bookId).ToList();
+            return await _context.Reviews.Include(r => r.Book).Include(r => r.Reviewer).Where(r => r.Id == reviewId).FirstOrDefaultAsync();
         }
 
-        public bool UpdateReview(Review review)
+        public async Task<ICollection<Review>> GetReviewsOfBookAsync(int bookId)
         {
-            var book = _context.Books.FirstOrDefault(b => b.Id == review.Book.Id);
-            var reviewer = _context.Reviewers.FirstOrDefault(r => r.Id == review.Reviewer.Id);
+            return await _context.Reviews.Include(r => r.Book).Include(r => r.Reviewer).Where(r => r.Book.Id == bookId).ToListAsync();
+        }
+
+        public async Task<bool> UpdateReviewAsync(Review review)
+        {
+            var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == review.Book.Id);
+            var reviewer = await _context.Reviewers.FirstOrDefaultAsync(r => r.Id == review.Reviewer.Id);
             if (book == null || reviewer == null)
                 return false;
             review.Book = book;
             review.Reviewer = reviewer;
             _context.Reviews.Update(review);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool CreateReview(Review review)
+        public async Task<bool> CreateReviewAsync(Review review)
         {
-            var book = _context.Books.FirstOrDefault(b => b.Id == review.Book.Id);
-            var reviewer = _context.Reviewers.FirstOrDefault(r => r.Id == review.Reviewer.Id);
+            var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == review.Book.Id);
+            var reviewer = await _context.Reviewers.FirstOrDefaultAsync(r => r.Id == review.Reviewer.Id);
             if (book == null || reviewer == null)
                 return false;
             review.Book = book;
             review.Reviewer = reviewer;
             _context.Reviews.Add(review);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool DeleteReview(Review review)
+        public async Task<bool> DeleteReviewAsync(Review review)
         {
             _context.Reviews.Remove(review);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            var saved = _context.SaveChanges();
-            return saved > 0 ? true : false;
+            var saved = await _context.SaveChangesAsync();
+            return saved > 0;
         }
     }
 }

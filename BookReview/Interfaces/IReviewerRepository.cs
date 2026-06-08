@@ -1,16 +1,16 @@
-﻿using BookReview.Models;
+using BookReview.Models;
 
 namespace BookReview.Interfaces
 {
     public interface IReviewerRepository
     {
-        ICollection<Reviewer> GetReviewers();
-        Reviewer? GetReviewer(int reviewerId);
-        ICollection<Review> GetReviewsByReviewer(int reviewerId);
-        bool ReviewerExists(int reviewerId);
-        bool UpdateReviewer(Reviewer reviewer);
-        bool CreateReviewer(Reviewer reviewer);
-        bool DeleteReviewer(Reviewer reviewer);
-        bool Save();
+        Task<ICollection<Reviewer>> GetReviewersAsync();
+        Task<Reviewer?> GetReviewerAsync(int reviewerId);
+        Task<ICollection<Review>> GetReviewsByReviewerAsync(int reviewerId);
+        Task<bool> ReviewerExistsAsync(int reviewerId);
+        Task<bool> UpdateReviewerAsync(Reviewer reviewer);
+        Task<bool> CreateReviewerAsync(Reviewer reviewer);
+        Task<bool> DeleteReviewerAsync(Reviewer reviewer);
+        Task<bool> SaveAsync();
     }
 }

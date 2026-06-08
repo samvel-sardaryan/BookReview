@@ -1,4 +1,4 @@
-﻿using BookReview.Dto;
+using BookReview.Dto;
 using BookReview.Interfaces;
 using BookReview.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -22,9 +22,9 @@ namespace BookReview.Controllers
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<AuthorDto>))]
-        public IActionResult GetAuthors()
+        public async Task<IActionResult> GetAuthors()
         {
-            var authors = _authorRepository.GetAllAuthors().Select(a => new AuthorDto
+            var authors = (await _authorRepository.GetAllAuthorsAsync()).Select(a => new AuthorDto
             {
                 Id = a.Id,
                 Name = a.Name,
@@ -40,9 +40,9 @@ namespace BookReview.Controllers
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(AuthorDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetAuthor(int authorId)
+        public async Task<IActionResult> GetAuthor(int authorId)
         {
-            var author = _authorRepository.GetAuthorById(authorId);
+            var author = await _authorRepository.GetAuthorByIdAsync(authorId);
             if (author == null)
                 return NotFound("Author not found");
             var authorDto = new AuthorDto
@@ -61,11 +61,11 @@ namespace BookReview.Controllers
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<AuthorDto>))]
         [ProducesResponseType(400)]
-        public IActionResult GetAuthorsOfBook(int bookId)
+        public async Task<IActionResult> GetAuthorsOfBook(int bookId)
         {
-            if (!_bookRepository.BookExists(bookId))
+            if (!await _bookRepository.BookExistsAsync(bookId))
                 return NotFound("Book not found");
-            var authors = _authorRepository.GetAuthorsOfBook(bookId).Select(a => new AuthorDto
+            var authors = (await _authorRepository.GetAuthorsOfBookAsync(bookId)).Select(a => new AuthorDto
             {
                 Id = a.Id,
                 Name = a.Name,
@@ -81,11 +81,11 @@ namespace BookReview.Controllers
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<BookDto>))]
         [ProducesResponseType(400)]
-        public IActionResult GetBooksByAuthor(int authorId)
+        public async Task<IActionResult> GetBooksByAuthor(int authorId)
         {
-            if (!_authorRepository.AuthorExists(authorId))
+            if (!await _authorRepository.AuthorExistsAsync(authorId))
                 return NotFound("Author not found");
-            var books = _authorRepository.GetBooksByAuthor(authorId).Select(b => new BookDto
+            var books = (await _authorRepository.GetBooksByAuthorAsync(authorId)).Select(b => new BookDto
             {
                 Id = b.Id,
                 Title = b.Title,
@@ -99,11 +99,11 @@ namespace BookReview.Controllers
         [HttpPut("{authorId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult UpdateAuthor(int authorId, [FromBody] AuthorDto updateAuthor)
+        public async Task<IActionResult> UpdateAuthor(int authorId, [FromBody] AuthorDto updateAuthor)
         {
             if (updateAuthor == null || authorId != updateAuthor.Id)
                 return BadRequest("Invalid data");
-            var authorToUpdate = _authorRepository.GetAuthorById(authorId);
+            var authorToUpdate = await _authorRepository.GetAuthorByIdAsync(authorId);
             if (authorToUpdate == null)
                 return BadRequest("Author not found");
             authorToUpdate.Name = updateAuthor.Name;
@@ -111,7 +111,7 @@ namespace BookReview.Controllers
             authorToUpdate.Country = new Country { Name = updateAuthor.CountryName };
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            if (!_authorRepository.UpdateAuthor(authorToUpdate))
+            if (!await _authorRepository.UpdateAuthorAsync(authorToUpdate))
                 return BadRequest("Country not found");
             return NoContent();
         }
@@ -119,11 +119,11 @@ namespace BookReview.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateAuthor([FromBody] AuthorDto newAuthor)
+        public async Task<IActionResult> CreateAuthor([FromBody] AuthorDto newAuthor)
         {
             if (newAuthor == null)
                 return BadRequest("Invalid data");
-            var existingAuthor = _authorRepository.GetAllAuthors().FirstOrDefault(c => c.Name.Trim().ToUpper() == newAuthor.Name.Trim().ToUpper());
+            var existingAuthor = (await _authorRepository.GetAllAuthorsAsync()).FirstOrDefault(c => c.Name.Trim().ToUpper() == newAuthor.Name.Trim().ToUpper());
             if (existingAuthor != null)
             {
                 ModelState.AddModelError("", "Author already exists");
@@ -138,7 +138,7 @@ namespace BookReview.Controllers
                     Name = newAuthor.CountryName
                 }
             };
-            if (!_authorRepository.CreateAuthor(authorToCreate))
+            if (!await _authorRepository.CreateAuthorAsync(authorToCreate))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
@@ -149,14 +149,14 @@ namespace BookReview.Controllers
         [HttpDelete("{authorId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult DeleteAuthor(int authorId)
+        public async Task<IActionResult> DeleteAuthor(int authorId)
         {
-            var authorToDelete = _authorRepository.GetAuthorById(authorId);
+            var authorToDelete = await _authorRepository.GetAuthorByIdAsync(authorId);
             if (authorToDelete == null)
                 return BadRequest("Author not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            if (!_authorRepository.DeleteAuthor(authorToDelete))
+            if (!await _authorRepository.DeleteAuthorAsync(authorToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);

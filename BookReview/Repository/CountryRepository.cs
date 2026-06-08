@@ -1,4 +1,4 @@
-﻿using BookReview.Data;
+using BookReview.Data;
 using BookReview.Interfaces;
 using BookReview.Models;
 using Microsoft.EntityFrameworkCore;
@@ -12,49 +12,50 @@ namespace BookReview.Repository
         {
             _context = context;
         }
-        public ICollection<Country> GetCountries()
+        public async Task<ICollection<Country>> GetCountriesAsync()
         {
-            return _context.Countries.OrderBy(c => c.Id).ToList();
+            return await _context.Countries.OrderBy(c => c.Id).ToListAsync();
         }
-        public Country? GetCountry(int countryId)
+        public async Task<Country?> GetCountryAsync(int countryId)
         {
-            return _context.Countries.Where(c => c.Id == countryId).FirstOrDefault();
+            return await _context.Countries.Where(c => c.Id == countryId).FirstOrDefaultAsync();
         }
-        public Country? GetCountryByAuthor(int authorId)
+        public async Task<Country?> GetCountryByAuthorAsync(int authorId)
         {
-            return _context.Authors.Include(a => a.Country).Where(a => a.Id == authorId).FirstOrDefault()?.Country;
+            var author = await _context.Authors.Include(a => a.Country).Where(a => a.Id == authorId).FirstOrDefaultAsync();
+            return author?.Country;
         }
-        public bool CountryExists(int countryId)
+        public async Task<bool> CountryExistsAsync(int countryId)
         {
-            return _context.Countries.Any(c => c.Id == countryId);
+            return await _context.Countries.AnyAsync(c => c.Id == countryId);
         }
-        public ICollection<Author> GetAuthorsFromCountry(int countryId)
+        public async Task<ICollection<Author>> GetAuthorsFromCountryAsync(int countryId)
         {
-            return _context.Authors.Where(a => a.Country.Id == countryId).ToList();
+            return await _context.Authors.Where(a => a.Country.Id == countryId).ToListAsync();
         }
 
-        public bool UpdateCountry(Country country)
+        public async Task<bool> UpdateCountryAsync(Country country)
         {
             _context.Countries.Update(country);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool CreateCountry(Country country)
+        public async Task<bool> CreateCountryAsync(Country country)
         {
             _context.Countries.Add(country);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool DeleteCountry(Country country)
+        public async Task<bool> DeleteCountryAsync(Country country)
         {
             _context.Countries.Remove(country);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            var saved = _context.SaveChanges();
-            return saved > 0 ? true : false;
+            var saved = await _context.SaveChangesAsync();
+            return saved > 0;
         }
     }
 }
