@@ -36,7 +36,7 @@ namespace BookReview.Controllers
         [HttpGet("{reviewerId}")]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(ReviewerDto))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetReviewer(int reviewerId)
         {
             var reviewer = await _reviewerRepository.GetReviewerAsync(reviewerId);
@@ -56,7 +56,7 @@ namespace BookReview.Controllers
         [HttpGet("{reviewerId}/reviews")]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewDto>))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetReviewsByReviewer(int reviewerId)
         {
             if (!await _reviewerRepository.ReviewerExistsAsync(reviewerId))
@@ -76,13 +76,15 @@ namespace BookReview.Controllers
         [HttpPut("{reviewerId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateReviewer(int reviewerId, [FromBody] ReviewerDto updateReviewer)
         {
             if (updateReviewer == null || reviewerId != updateReviewer.Id)
                 return BadRequest("Invalid data");
             var reviewerToUpdate = await _reviewerRepository.GetReviewerAsync(reviewerId);
             if (reviewerToUpdate == null)
-                return BadRequest("Reviewer not found");
+                return NotFound("Reviewer not found");
             reviewerToUpdate.FirstName = updateReviewer.FirstName;
             reviewerToUpdate.LastName = updateReviewer.LastName;
             if (!ModelState.IsValid)
@@ -96,8 +98,10 @@ namespace BookReview.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(201, Type = typeof(ReviewerDto))]
         [ProducesResponseType(400)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> CreateReviewer([FromBody] ReviewerDto newReviewer)
         {
             if (newReviewer == null)
@@ -106,7 +110,7 @@ namespace BookReview.Controllers
             if (existingReviewer != null)
             {
                 ModelState.AddModelError("", "Reviewer already exists");
-                return StatusCode(422, ModelState);
+                return Conflict(ModelState);
             }
             var reviewerToCreate = new Reviewer
             {
@@ -118,17 +122,24 @@ namespace BookReview.Controllers
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
             }
-            return Ok("Successfully created");
+            var reviewerDto = new ReviewerDto
+            {
+                Id = reviewerToCreate.Id,
+                FirstName = reviewerToCreate.FirstName,
+                LastName = reviewerToCreate.LastName
+            };
+            return CreatedAtAction(nameof(GetReviewer), new { reviewerId = reviewerToCreate.Id }, reviewerDto);
         }
 
         [HttpDelete("{reviewerId}")]
         [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteReviewer(int reviewerId)
         {
             var reviewerToDelete = await _reviewerRepository.GetReviewerAsync(reviewerId);
             if (reviewerToDelete == null)
-                return BadRequest("Reviewer not found");
+                return NotFound("Reviewer not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (!await _reviewerRepository.DeleteReviewerAsync(reviewerToDelete))

@@ -34,7 +34,7 @@ namespace BookReview.Controllers
         [HttpGet("{countryId}")]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(CountryDto))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetCountry(int countryId)
         {
             var country = await _countryRepository.GetCountryAsync(countryId);
@@ -53,7 +53,7 @@ namespace BookReview.Controllers
         [HttpGet("authors/{authorId}")]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(CountryDto))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetCountryByAuthor(int authorId)
         {
             var country = await _countryRepository.GetCountryByAuthorAsync(authorId);
@@ -71,8 +71,8 @@ namespace BookReview.Controllers
 
         [HttpGet("{countryId}/authors")]
         [AllowAnonymous]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Author>))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<AuthorDto>))]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetAuthorsFromCountry(int countryId)
         {
             if (!await _countryRepository.CountryExistsAsync(countryId))
@@ -91,13 +91,15 @@ namespace BookReview.Controllers
         [HttpPut("{countryId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateCountry(int countryId, [FromBody] CountryDto updateCountry)
         {
             if (updateCountry == null || countryId != updateCountry.Id)
                 return BadRequest("Invalid data");
             var countryToUpdate = await _countryRepository.GetCountryAsync(countryId);
             if (countryToUpdate == null)
-                return BadRequest("Country not found");
+                return NotFound("Country not found");
             countryToUpdate.Name = updateCountry.Name;
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -110,8 +112,10 @@ namespace BookReview.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(201, Type = typeof(CountryDto))]
         [ProducesResponseType(400)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> CreateCountry([FromBody] CountryDto newCountry)
         {
             if (newCountry == null)
@@ -120,7 +124,7 @@ namespace BookReview.Controllers
             if (existingCountry != null)
             {
                 ModelState.AddModelError("", "Country already exists");
-                return StatusCode(422, ModelState);
+                return Conflict(ModelState);
             }
             var countryToCreate = new Country
             {
@@ -131,17 +135,23 @@ namespace BookReview.Controllers
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
             }
-            return Ok("Successfully created");
+            var countryDto = new CountryDto
+            {
+                Id = countryToCreate.Id,
+                Name = countryToCreate.Name
+            };
+            return CreatedAtAction(nameof(GetCountry), new { countryId = countryToCreate.Id }, countryDto);
         }
 
         [HttpDelete("{countryId}")]
         [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteCountry(int countryId)
         {
             var countryToDelete = await _countryRepository.GetCountryAsync(countryId);
             if (countryToDelete == null)
-                return BadRequest("Country not found");
+                return NotFound("Country not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (!await _countryRepository.DeleteCountryAsync(countryToDelete))

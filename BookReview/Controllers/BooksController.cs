@@ -36,7 +36,7 @@ namespace BookReview.Controllers
         [HttpGet("{bookId}")]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(BookDto))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetBook(int bookId)
         {
             var book = await _bookRepository.GetBookAsync(bookId);
@@ -56,7 +56,7 @@ namespace BookReview.Controllers
         [HttpGet("{bookId}/rating")]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(decimal))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetBookRating(int bookId)
         {
             if (!await _bookRepository.BookExistsAsync(bookId))
@@ -70,13 +70,15 @@ namespace BookReview.Controllers
         [HttpPut("{bookId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateBook(int bookId, [FromBody] BookDto updateBook)
         {
             if (updateBook == null || bookId != updateBook.Id)
                 return BadRequest("Invalid data");
             var bookToUpdate = await _bookRepository.GetBookAsync(bookId);
             if (bookToUpdate == null)
-                return BadRequest("Book not found");
+                return NotFound("Book not found");
             bookToUpdate.Title = updateBook.Title;
             bookToUpdate.ReleaseDate = updateBook.ReleaseDate;
             if (!ModelState.IsValid)
@@ -90,8 +92,10 @@ namespace BookReview.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(201, Type = typeof(BookDto))]
         [ProducesResponseType(400)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> CreateBook([FromBody] BookDto newBook)
         {
             if (newBook == null)
@@ -100,7 +104,7 @@ namespace BookReview.Controllers
             if (existingBook != null)
             {
                 ModelState.AddModelError("", "Book already exists");
-                return StatusCode(422, ModelState);
+                return Conflict(ModelState);
             }
             var bookToCreate = new Book
             {
@@ -112,17 +116,24 @@ namespace BookReview.Controllers
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
             }
-            return Ok("Successfully created");
+            var bookDto = new BookDto
+            {
+                Id = bookToCreate.Id,
+                Title = bookToCreate.Title,
+                ReleaseDate = bookToCreate.ReleaseDate
+            };
+            return CreatedAtAction(nameof(GetBook), new { bookId = bookToCreate.Id }, bookDto);
         }
 
         [HttpDelete("{bookId}")]
         [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteBook(int bookId)
         {
             var bookToDelete = await _bookRepository.GetBookAsync(bookId);
             if (bookToDelete == null)
-                return BadRequest("Book not found");
+                return NotFound("Book not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (!await _bookRepository.DeleteBookAsync(bookToDelete))

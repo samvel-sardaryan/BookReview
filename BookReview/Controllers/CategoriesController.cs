@@ -35,7 +35,7 @@ namespace BookReview.Controllers
         [HttpGet("{categoryId}")]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(CategoryDto))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetCategory(int categoryId)
         {
             var category = await _categoryRepository.GetCategoryAsync(categoryId);
@@ -53,8 +53,8 @@ namespace BookReview.Controllers
 
         [HttpGet("{categoryId}/books")]
         [AllowAnonymous]
-        [ProducesResponseType(200, Type = typeof(BookDto))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<BookDto>))]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetBooksByCategory(int categoryId)
         {
             if (!await _categoryRepository.CategoryExistsAsync(categoryId))
@@ -73,13 +73,15 @@ namespace BookReview.Controllers
         [HttpPut("{categoryId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] CategoryDto updateCategory)
         {
             if (updateCategory == null || categoryId != updateCategory.Id)
                 return BadRequest("Invalid data");
             var categoryToUpdate = await _categoryRepository.GetCategoryAsync(categoryId);
             if (categoryToUpdate == null)
-                return BadRequest("Category not found");
+                return NotFound("Category not found");
             categoryToUpdate.Name = updateCategory.Name;
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -92,8 +94,10 @@ namespace BookReview.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(201, Type = typeof(CategoryDto))]
         [ProducesResponseType(400)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryDto newCategory)
         {
             if (newCategory == null)
@@ -102,7 +106,7 @@ namespace BookReview.Controllers
             if (existingCategory != null)
             {
                 ModelState.AddModelError("", "Category already exists");
-                return StatusCode(422, ModelState);
+                return Conflict(ModelState);
             }
             var categoryToCreate = new Category
             {
@@ -113,17 +117,23 @@ namespace BookReview.Controllers
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
             }
-            return Ok("Successfully created");
+            var categoryDto = new CategoryDto
+            {
+                Id = categoryToCreate.Id,
+                Name = categoryToCreate.Name
+            };
+            return CreatedAtAction(nameof(GetCategory), new { categoryId = categoryToCreate.Id }, categoryDto);
         }
 
         [HttpDelete("{categoryId}")]
         [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteCategory(int categoryId)
         {
             var categoryToDelete = await _categoryRepository.GetCategoryAsync(categoryId);
             if (categoryToDelete == null)
-                return BadRequest("Category not found");
+                return NotFound("Category not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (!await _categoryRepository.DeleteCategoryAsync(categoryToDelete))

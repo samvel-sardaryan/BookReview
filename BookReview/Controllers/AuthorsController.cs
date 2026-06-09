@@ -39,7 +39,7 @@ namespace BookReview.Controllers
         [HttpGet("{authorId}")]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(AuthorDto))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetAuthor(int authorId)
         {
             var author = await _authorRepository.GetAuthorByIdAsync(authorId);
@@ -60,7 +60,7 @@ namespace BookReview.Controllers
         [HttpGet("book/{bookId}")]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<AuthorDto>))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetAuthorsOfBook(int bookId)
         {
             if (!await _bookRepository.BookExistsAsync(bookId))
@@ -80,7 +80,7 @@ namespace BookReview.Controllers
         [HttpGet("{authorId}/books")]
         [AllowAnonymous]
         [ProducesResponseType(200, Type = typeof(IEnumerable<BookDto>))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetBooksByAuthor(int authorId)
         {
             if (!await _authorRepository.AuthorExistsAsync(authorId))
@@ -99,13 +99,14 @@ namespace BookReview.Controllers
         [HttpPut("{authorId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateAuthor(int authorId, [FromBody] AuthorDto updateAuthor)
         {
             if (updateAuthor == null || authorId != updateAuthor.Id)
                 return BadRequest("Invalid data");
             var authorToUpdate = await _authorRepository.GetAuthorByIdAsync(authorId);
             if (authorToUpdate == null)
-                return BadRequest("Author not found");
+                return NotFound("Author not found");
             authorToUpdate.Name = updateAuthor.Name;
             authorToUpdate.Bio = updateAuthor.Bio;
             authorToUpdate.Country = new Country { Name = updateAuthor.CountryName };
@@ -117,8 +118,9 @@ namespace BookReview.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(201, Type = typeof(AuthorDto))]
         [ProducesResponseType(400)]
+        [ProducesResponseType(409)]
         public async Task<IActionResult> CreateAuthor([FromBody] AuthorDto newAuthor)
         {
             if (newAuthor == null)
@@ -127,7 +129,7 @@ namespace BookReview.Controllers
             if (existingAuthor != null)
             {
                 ModelState.AddModelError("", "Author already exists");
-                return StatusCode(422, ModelState);
+                return Conflict(ModelState);
             }
             var authorToCreate = new Author
             {
@@ -139,21 +141,26 @@ namespace BookReview.Controllers
                 }
             };
             if (!await _authorRepository.CreateAuthorAsync(authorToCreate))
+                return BadRequest("Country not found");
+            var authorDto = new AuthorDto
             {
-                ModelState.AddModelError("", "Something went wrong");
-                return StatusCode(500, ModelState);
-            }
-            return Ok("Successfully created");
+                Id = authorToCreate.Id,
+                Name = authorToCreate.Name,
+                Bio = authorToCreate.Bio,
+                CountryName = authorToCreate.Country.Name
+            };
+            return CreatedAtAction(nameof(GetAuthor), new { authorId = authorToCreate.Id }, authorDto);
         }
 
         [HttpDelete("{authorId}")]
         [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteAuthor(int authorId)
         {
             var authorToDelete = await _authorRepository.GetAuthorByIdAsync(authorId);
             if (authorToDelete == null)
-                return BadRequest("Author not found");
+                return NotFound("Author not found");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (!await _authorRepository.DeleteAuthorAsync(authorToDelete))
