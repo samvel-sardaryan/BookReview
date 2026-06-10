@@ -63,9 +63,13 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-    db.Database.Migrate();
+    if (db.Database.IsRelational())
+        db.Database.Migrate();
     var seed = scope.ServiceProvider.GetRequiredService<Seed>();
     seed.SeedDataContext();
 }
 
 app.Run();
+
+// Exposed so the integration test project (WebApplicationFactory<Program>) can boot the app.
+public partial class Program { }
