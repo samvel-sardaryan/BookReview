@@ -251,6 +251,14 @@ dotnet run
 
 Provide the connection string and JWT signing key via environment variables or `appsettings.Development.json` (see below).
 
+### Running the tests
+
+The test suite is self-contained — it uses an in-memory database and needs neither Docker nor PostgreSQL:
+
+```bash
+dotnet test
+```
+
 ---
 
 ## Configuration
@@ -319,9 +327,10 @@ This project went through a focused round of backend hardening. Each item was im
 - **Fixed logic bugs** — corrected copy-paste mistakes in existence checks and entity updates (e.g. loading the related country correctly, validating related entities on update).
 - **Async data access** — all repository methods are now `async`/`await` over EF Core's async APIs (`ToListAsync`, `FirstOrDefaultAsync`, `SaveChangesAsync`, …), so requests no longer block threads on database I/O.
 - **Tidied HTTP semantics** — POSTs return `201 Created` with a `Location` header, duplicates return `409 Conflict`, missing resources return `404`, bad foreign keys return `400`, and the `[ProducesResponseType]` annotations (which drive the OpenAPI docs) match the real responses.
+- **Automated test suite** — an xUnit project with 88 tests across three layers: controller unit tests (repositories mocked with Moq), repository tests (EF Core in-memory provider), and end-to-end integration tests (`WebApplicationFactory`) exercising real HTTP routing, JWT auth, and JSON serialization.
 
 ---
 
 ## Roadmap
 
-- **Automated tests** — an xUnit test project covering controller behaviour (with a mocked repository) and repository logic (against an in-memory database).
+- **Continuous integration** — a GitHub Actions workflow to build the solution and run `dotnet test` on every push.
